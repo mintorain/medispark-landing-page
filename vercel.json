@@ -1,9 +1,11 @@
 {
   "version": 2,
+  "builds": [
+    { "src": "api/leads.js", "use": "@vercel/node" },
+    { "src": "public/**", "use": "@vercel/static" }
+  ],
   "rewrites": [
-    {
-      "source": "/api/leads",
-      "destination": "/api/leads.js"
-    }
+    { "source": "/api/leads", "destination": "/api/leads.js" },
+    { "source": "/(.*)", "destination": "/public/$1" }
   ]
 }
