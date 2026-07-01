@@ -5,3 +5,5 @@ site-artifact/
 *.log
 *.err
 tmp_pdf_extract.txt
+
+.vercel
