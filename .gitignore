@@ -1,0 +1,7 @@
+data/leads.ndjson
+tmp/
+dist/
+site-artifact/
+*.log
+*.err
+tmp_pdf_extract.txt
