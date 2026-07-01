@@ -42,6 +42,30 @@ async function main() {
   const workerSource = `export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+    const origin = url.origin;
+
+    if (url.pathname === "/robots.txt") {
+      return new Response(\`User-agent: *\\nAllow: /\\nSitemap: \${origin}/sitemap.xml\\n\`, {
+        headers: { "content-type": "text/plain; charset=utf-8" }
+      });
+    }
+
+    if (url.pathname === "/sitemap.xml") {
+      const now = new Date().toISOString();
+      const body = \`<?xml version="1.0" encoding="UTF-8"?>\\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\\n  <url>\\n    <loc>\${origin}/</loc>\\n    <lastmod>\${now}</lastmod>\\n    <changefreq>daily</changefreq>\\n    <priority>1.0</priority>\\n  </url>\\n</urlset>\\n\`;
+      return new Response(body, {
+        headers: { "content-type": "application/xml; charset=utf-8" }
+      });
+    }
+
+    if (url.pathname === "/rss.xml") {
+      const now = new Date().toUTCString();
+      const body = \`<?xml version="1.0" encoding="UTF-8"?>\\n<rss version="2.0">\\n  <channel>\\n    <title>브레인시티 메디스파크 로제비앙 모아엘가</title>\\n    <link>\${origin}/</link>\\n    <description>브레인시티 메디스파크 로제비앙 모아엘가 분양 안내</description>\\n    <lastBuildDate>\${now}</lastBuildDate>\\n    <item>\\n      <title>브레인시티 메디스파크 로제비앙 모아엘가 분양 안내</title>\\n      <link>\${origin}/</link>\\n      <description>공원, 학교, 실거주형 평면을 갖춘 1,215세대 대단지 분양 안내 페이지</description>\\n      <pubDate>\${now}</pubDate>\\n      <guid>\${origin}/</guid>\\n    </item>\\n  </channel>\\n</rss>\\n\`;
+      return new Response(body, {
+        headers: { "content-type": "application/rss+xml; charset=utf-8" }
+      });
+    }
+
     const assetResponse = await env.ASSETS.fetch(request);
 
     if (assetResponse.status !== 404) {

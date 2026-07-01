@@ -27,6 +27,27 @@ const contentTypes = {
   ".pdf": "application/pdf",
 };
 
+function getBaseUrl(req) {
+  return `${req.headers["x-forwarded-proto"] || "http"}://${req.headers.host}`;
+}
+
+function buildRobotsTxt(req) {
+  const baseUrl = getBaseUrl(req);
+  return `User-agent: *\nAllow: /\nSitemap: ${baseUrl}/sitemap.xml\n`;
+}
+
+function buildSitemapXml(req) {
+  const baseUrl = getBaseUrl(req);
+  const now = new Date().toISOString();
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <url>\n    <loc>${baseUrl}/</loc>\n    <lastmod>${now}</lastmod>\n    <changefreq>daily</changefreq>\n    <priority>1.0</priority>\n  </url>\n</urlset>\n`;
+}
+
+function buildRssXml(req) {
+  const baseUrl = getBaseUrl(req);
+  const now = new Date().toUTCString();
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<rss version="2.0">\n  <channel>\n    <title>브레인시티 메디스파크 로제비앙 모아엘가</title>\n    <link>${baseUrl}/</link>\n    <description>브레인시티 메디스파크 로제비앙 모아엘가 분양 안내</description>\n    <lastBuildDate>${now}</lastBuildDate>\n    <item>\n      <title>브레인시티 메디스파크 로제비앙 모아엘가 분양 안내</title>\n      <link>${baseUrl}/</link>\n      <description>공원, 학교, 실거주형 평면을 갖춘 1,215세대 대단지 분양 안내 페이지</description>\n      <pubDate>${now}</pubDate>\n      <guid>${baseUrl}/</guid>\n    </item>\n  </channel>\n</rss>\n`;
+}
+
 async function ensureDataDir() {
   await fsp.mkdir(dataDir, { recursive: true });
 }
@@ -200,6 +221,33 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (req.method === "GET") {
+    if (parsedUrl.pathname === "/robots.txt") {
+      res.writeHead(200, {
+        "Content-Type": "text/plain; charset=utf-8",
+        "Cache-Control": "no-cache",
+      });
+      res.end(buildRobotsTxt(req));
+      return;
+    }
+
+    if (parsedUrl.pathname === "/sitemap.xml") {
+      res.writeHead(200, {
+        "Content-Type": "application/xml; charset=utf-8",
+        "Cache-Control": "no-cache",
+      });
+      res.end(buildSitemapXml(req));
+      return;
+    }
+
+    if (parsedUrl.pathname === "/rss.xml") {
+      res.writeHead(200, {
+        "Content-Type": "application/rss+xml; charset=utf-8",
+        "Cache-Control": "no-cache",
+      });
+      res.end(buildRssXml(req));
+      return;
+    }
+
     const filePath = sanitizePathname(parsedUrl.pathname);
     return serveStaticFile(filePath, res);
   }
