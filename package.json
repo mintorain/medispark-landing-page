@@ -4,7 +4,7 @@
   "private": true,
   "description": "브레인시티 메디스파크 로제비앙 모아엘가 분양 랜딩페이지",
   "scripts": {
-    "start": "node server.js",
+    "start": "node local-server.js",
     "build:sites": "node build-sites.mjs"
   }
 }

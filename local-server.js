@@ -89,12 +89,12 @@ function sendJson(res, statusCode, payload) {
 
 function sanitizePathname(urlPathname) {
   if (urlPathname === "/") {
-    return path.join(rootDir, "index.html");
+    return path.join(rootDir, "public", "index.html");
   }
 
   const decoded = decodeURIComponent(urlPathname);
   const safePath = path.normalize(decoded).replace(/^(\.\.[/\\])+/, "");
-  return path.join(rootDir, safePath);
+  return path.join(rootDir, "public", safePath);
 }
 
 async function readRequestBody(req) {
